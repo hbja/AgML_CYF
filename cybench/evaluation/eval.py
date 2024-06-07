@@ -5,7 +5,6 @@ from cybench.config import KEY_TARGET
 from cybench.models.model import BaseModel
 from cybench.datasets.dataset import Dataset
 
-
 implemented_metrics = {}
 
 
@@ -16,7 +15,7 @@ def metric(func):
 
 
 def get_default_metrics():
-    return ("normalized_rmse", "mape")
+    return ("normalized_rmse", "mape")  # , "Accuracy")
 
 
 def evaluate_model(model: BaseModel, dataset: Dataset, metrics=get_default_metrics()):
@@ -40,7 +39,7 @@ def evaluate_model(model: BaseModel, dataset: Dataset, metrics=get_default_metri
 
 
 def evaluate_predictions(
-    y_true: np.ndarray, y_pred: np.ndarray, metrics=get_default_metrics()
+        y_true: np.ndarray, y_pred: np.ndarray, metrics=get_default_metrics()
 ):
     """
     Evaluate predictions using specified metrics.
@@ -99,3 +98,20 @@ def mape(y_true: np.ndarray, y_pred: np.ndarray):
     """
 
     return mean_absolute_percentage_error(y_true, y_pred)
+
+
+@metric
+def Accuracy(y_true: np.ndarray, y_pred: np.ndarray):
+    """
+    Calculate Mean Absolute Percentage Error (MAPE).
+    Note that in the provided implementation using scikit-learn, there is an absence of multiplication by 100
+
+    Args:
+    - y_true (numpy.ndarray): True values.
+    - y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+    - float: Mean Absolute Percentage Error.
+    """
+
+    return (100 - ((y_true - y_pred) / y_true * 100)) / 100

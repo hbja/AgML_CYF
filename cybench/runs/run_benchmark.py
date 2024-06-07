@@ -1,6 +1,12 @@
 import os
 from collections import defaultdict
 
+# import sys
+# sys.path.append('/lustre/backup/WUR/AIN/baja001/AgML/AgML-CY-Bench/')
+
+import comet_ml
+from comet_ml import Experiment
+
 import pandas as pd
 import torch
 from datetime import datetime
@@ -20,13 +26,12 @@ from cybench.models.trend_model import TrendModel
 from cybench.models.sklearn_model import SklearnModel
 from cybench.models.nn_models import ExampleLSTM
 
-
 _BASELINE_MODEL_CONSTRUCTORS = {
     "AverageYieldModel": AverageYieldModel,
-    "LinearTrend": TrendModel,
+    # "LinearTrend": TrendModel,
     "SklearnRidge": SklearnModel,
     "SklearnRF": SklearnModel,
-    "LSTM": ExampleLSTM,
+    # "LSTM": ExampleLSTM,
 }
 
 sklearn_ridge = Ridge(alpha=0.5)
@@ -34,48 +39,50 @@ sklearn_rf = RandomForestRegressor(oob_score=True, n_estimators=100, min_samples
 BASELINE_MODELS = list(_BASELINE_MODEL_CONSTRUCTORS.keys())
 
 _BASELINE_MODEL_INIT_KWARGS = defaultdict(dict)
-_BASELINE_MODEL_INIT_KWARGS["LinearTrend"] = {"trend": "linear"}
+# _BASELINE_MODEL_INIT_KWARGS["LinearTrend"] = {"trend": "linear"}
 
 _BASELINE_MODEL_INIT_KWARGS["SklearnRidge"] = {"sklearn_est": sklearn_ridge}
 _BASELINE_MODEL_INIT_KWARGS["SklearnRF"] = {"sklearn_est": sklearn_rf}
 
-_BASELINE_MODEL_INIT_KWARGS["LSTM"] = {
-    "hidden_size": 64,
-    "num_layers": 1,
-}
+# _BASELINE_MODEL_INIT_KWARGS["LSTM"] = {
+#     "hidden_size": 64,
+#     "num_layers": 1,
+# }
 
 _BASELINE_MODEL_FIT_KWARGS = defaultdict(dict)
-_BASELINE_MODEL_FIT_KWARGS["LSTM"] = {
-    "batch_size": 16,
-    "num_epochs": 50,
-    "device": "cuda" if torch.cuda.is_available() else "cpu",
-    "optim_fn": torch.optim.Adam,
-    "optim_kwargs": {"lr": 0.0001, "weight_decay": 0.00001},
-    "scheduler_fn": torch.optim.lr_scheduler.StepLR,
-    "scheduler_kwargs": {"step_size": 1, "gamma": 1},
-    "val_fraction": 0.1,
-    "val_split_by_year": True,
-    "do_early_stopping": True,
-    "optimize_hyperparameters": False,
-    "param_space": {
-        "optim_kwargs": {
-            "lr": [0.0001, 0.00001],
-            "weight_decay": [0.0001, 0.00001],
-        },
-    },
-    "do_kfold": False,
-    "kfolds": 5,
-}
+
+
+# _BASELINE_MODEL_FIT_KWARGS["LSTM"] = {
+#     "batch_size": 16,
+#     "num_epochs": 5,
+#     "device": "cuda" if torch.cuda.is_available() else "cpu",
+#     "optim_fn": torch.optim.Adam,
+#     "optim_kwargs": {"lr": 0.0001, "weight_decay": 0.00001},
+#     "scheduler_fn": torch.optim.lr_scheduler.StepLR,
+#     "scheduler_kwargs": {"step_size": 1, "gamma": 1},
+#     "val_fraction": 0.1,
+#     "val_split_by_year": True,
+#     "do_early_stopping": True,
+#     "optimize_hyperparameters": False,
+#     "param_space": {
+#         "optim_kwargs": {
+#             "lr": [0.0001, 0.00001],
+#             "weight_decay": [0.0001, 0.00001],
+#         },
+#     },
+#     "do_kfold": False,
+#     "kfolds": 5,
+# }
 
 
 def run_benchmark(
-    run_name: str,
-    model_name: str = None,
-    model_constructor: callable = None,
-    model_init_kwargs: dict = None,
-    model_fit_kwargs: dict = None,
-    baseline_models: list = None,
-    dataset_name: str = "maize_NL",
+        run_name: str,
+        model_name: str = None,
+        model_constructor: callable = None,
+        model_init_kwargs: dict = None,
+        model_fit_kwargs: dict = None,
+        baseline_models: list = None,
+        dataset_name: str = "maize_NL",
 ) -> dict:
     """
     Run the AgML benchmark.
@@ -104,7 +111,7 @@ def run_benchmark(
 
     # Make sure model_name is not already defined
     assert (
-        model_name not in BASELINE_MODELS
+            model_name not in BASELINE_MODELS
     ), f"Model name {model_name} already occurs in the baseline"
 
     model_constructors = {
@@ -164,7 +171,7 @@ def run_benchmark(
 
 
 def _compute_evaluation_results(
-    run_name: str,
+        run_name: str,
 ) -> pd.DataFrame:
     path_results = os.path.join(PATH_RESULTS_DIR, run_name)
 
@@ -213,13 +220,43 @@ def _compute_evaluation_results(
 
 
 def run_benchmark_on_all_data():
+    # comet_ml.init(anonymous=True)
+    # experiment = Experiment(
+    #     project_name="CY-Bench",
+    #     log_env_gpu=True,
+    #     auto_log_co2=True,
+    #     auto_metric_logging=True,
+    #     auto_param_logging=True,
+    #     auto_histogram_gradient_logging=True,
+    # )
+    # experiment.set_name("Benchmark: LSTM")
+    dict_results_all = defaultdict()
     for crop in DATASETS:
         for cn in DATASETS[crop]:
             if os.path.exists(os.path.join(PATH_DATA_DIR, crop, cn)):
-                run_name = datetime.now().strftime("cybench_%H_%M_%d_%m_%Y.run")
-                run_benchmark(run_name=run_name, dataset_name=crop + "_" + cn)
+                run_name = datetime.now().strftime(f"{crop}-{cn}_sklearn.run")
+                # try:
+                print(run_name)
+                result = run_benchmark(run_name=run_name, dataset_name=crop + "_" + cn)
+                # except (ValueError, KeyError):
+                #     print(f"Error in {run_name}! Skipping...")
+                #     continue
+                expanded_df = result["df_metrics"].to_dict("index")
+                dict_results_all[crop + "_" + cn] = expanded_df
+                # for (model, year, metric), value_dict in expanded_df.items():
+                #     value = value_dict["value"]
+                #     if metric == "normalized_rmse":
+                #         experiment.log_metric(f"{model}_normalized_rmse_{crop}_{cn}", value, step=year)
+                #     elif metric == "mape":
+                #         experiment.log_metric(f"{model}_mape_{crop}_{cn}", value, step=year)
+    df = pd.DataFrame.from_dict(dict_results_all)
+    df.to_csv(os.path.join(PATH_RESULTS_DIR, "results_wheat_LSTM_IN.csv"))
+    import pickle
+    with open(os.path.join(PATH_DATA_DIR, f'results_wheat_LSTM_IN.pkl'), 'wb') as f:
+        pickle.dump(dict_results_all, f)
 
 
-# run_benchmark_on_all_data()
-run_name = datetime.now().strftime("cybench_%H_%M_%d_%m_%Y.run")
-run_benchmark(run_name=run_name, dataset_name="maize")
+if __name__ == "__main__":
+    run_benchmark_on_all_data()
+    # run_name = datetime.now().strftime("cybench_%H_%M_%d_%m_%Y.run")
+    # run_benchmark(run_name=run_name, dataset_name="maize")

@@ -44,7 +44,7 @@ class TrendModel(BaseModel):
           A quadratic trend estimator (with an additive quadratic term)
         """
         quad_x = add_constant(
-            np.column_stack((trend_x, trend_x**2)), has_constant="add"
+            np.column_stack((trend_x, trend_x ** 2)), has_constant="add"
         )
         quad_est = OLS(trend_y, quad_x).fit()
 
@@ -89,11 +89,11 @@ class TrendModel(BaseModel):
             trend_x = np.array([year]).reshape((1, 1))
             if self._trend == "quadratic":
                 trend_x = add_constant(
-                    np.column_stack((trend_x, trend_x**2)), has_constant="add"
+                    np.column_stack((trend_x, trend_x ** 2)), has_constant="add"
                 )
             else:
                 trend_x = add_constant(trend_x, has_constant="add")
-
+            
             predictions[i] = trend_est.predict(trend_x)
 
         return predictions.flatten(), {}

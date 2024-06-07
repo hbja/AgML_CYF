@@ -3,7 +3,6 @@ import logging
 import logging.config
 from datetime import datetime
 
-
 # Project root dir
 CONFIG_DIR = os.path.abspath(os.path.join(__file__, os.pardir))
 
@@ -15,82 +14,81 @@ os.makedirs(PATH_DATA_DIR, exist_ok=True)
 PATH_RESULTS_DIR = os.path.join(CONFIG_DIR, "output", "runs")
 os.makedirs(PATH_RESULTS_DIR, exist_ok=True)
 
-
 DATASETS = {
     "maize": [
-        "AO",
-        "AR",
-        "AT",
-        "BE",
-        "BF",
-        "BG",
-        "BR",
-        "CN",
-        "CZ",
-        "DE",
-        "DK",
-        "EE",
-        "EL",
-        "ES",
-        "ET",
-        "FI",
-        "FR",
-        "HR",
-        "HU",
-        "IE",
-        "IN",
-        "IT",
-        "LS",
-        "LT",
-        "LV",
-        "MG",
-        "ML",
-        "MW",
-        "MX",
-        "MZ",
-        "NE",
-        "NL",
-        "PL",
-        "PT",
-        "RO",
-        "SE",
-        "SK",
-        "SN",
-        "TD",
-        "US",
-        "ZA",
-        "ZM",
+        # "AO",
+        # "AR",
+        # "AT",
+        # "BE",
+        # "BF",
+        # "BG",
+        # "BR",
+        # "CN",
+        # "CZ",
+        # "DE",
+        # "DK",
+        # "EE",
+        # "EL",
+        # "ES",
+        # "ET",
+        # "FI",
+        # "FR",
+        # "HR",
+        # "HU",
+        # "IE",
+        # "IN",
+        # "IT",
+        # "LS",
+        # "LT",
+        # "LV",
+        # "MG",
+        # "ML",
+        # "MW",
+        # "MX",
+        # "MZ",
+        # "NE",
+        # "NL",
+        # "PL",
+        # "PT",
+        # "RO",
+        # "SE",
+        # "SK",
+        # "SN",
+        # "TD",
+        # "US",
+        # "ZA",
+        # "ZM",
     ],
     "wheat": [
-        "AR",
-        "AT",
-        "AU",
-        "BE",
-        "BG",
-        "BR",
+        # "AR",
+        # "AT",
+        # "AU",
+        # "BE",
+        # "BG",
+        # "BR",
         "CN",
-        "CZ",
-        "DE",
-        "DK",
-        "EE",
-        "EL",
-        "ES",
-        "FI",
-        "FR",
-        "HR",
-        "HU",
-        "IE",
-        "IN",
-        "IT",
-        "LT",
-        "LV",
-        "NL",
-        "PL",
-        "PT",
-        "RO",
-        "SE",
-        "SK",
-        "US",
+        # "CZ",
+        # "DE",
+        # "DK",
+        # "EE",
+        # "EL",
+        # "ES",
+        # "FI",
+        # "FR",
+        # "HR",
+        # "HU",
+        # "IE",
+        # "IN",
+        # "IT",
+        # "LT",
+        # "LV",
+        # "NL",
+        # "PL",
+        # "PT",
+        # "RO",
+        # "SE",
+        # "SK",
+        # "US",
     ],
 }
 
@@ -122,7 +120,7 @@ SOIL_MOISTURE_INDICATORS = ["ssm"]  # , "rsm"]
 
 # Time series predictors
 TIME_SERIES_PREDICTORS = (
-    METEO_INDICATORS + [RS_FPAR, RS_NDVI] + SOIL_MOISTURE_INDICATORS
+        METEO_INDICATORS + [RS_FPAR, RS_NDVI] + SOIL_MOISTURE_INDICATORS
 )
 
 # Crop calendar entries: start of season, end of season
@@ -141,12 +139,10 @@ GDD_UPPER_LIMIT = {
     "wheat": None,
 }
 
-
 # Lead time for forecasting
 # NOTE: can be: "mid-season", "quarter-of-season",
 # "n-days" with n is an integer
 FORECAST_LEAD_TIME = "mid-season"
-
 
 # Logging
 PATH_LOGS_DIR = os.path.join(CONFIG_DIR, "output", "logs")
